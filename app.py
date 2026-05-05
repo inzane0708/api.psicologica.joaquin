@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from flask_cors import CORS
@@ -6,7 +7,12 @@ from bson import ObjectId
 app = Flask(__name__)
 CORS(app)
 
-client = MongoClient("mongodb+srv://inzane:joaquin@cluster0.bikhvos.mongodb.net/?appName=Cluster0")
+mongo_uri = os.environ.get("MONGO_URI")
+
+if not mongo_uri:
+    raise Exception("No se encontró la variable MONGO_URI")
+
+client = MongoClient(mongo_uri)
 db = client["clinica"]
 pacientes = db["pacientes"]
 
@@ -47,4 +53,5 @@ def agregar_consulta(id):
     return jsonify({"mensaje": "Consulta agregada"})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
